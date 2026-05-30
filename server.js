@@ -3,17 +3,21 @@
 import express from "express";
 import dotenv from "dotenv";
 import mongoose from "mongoose";
+import cors from "cors";
 
 import userRoutes from "./routes/userRoutes.js";
+import documentRoutes from "./routes/documentRoutes.js";
 
 dotenv.config();
 
 const app = express();
+app.use(cors());
 
 app.use(express.json());
 
 // ROUTES
 app.use("/api/users", userRoutes);
+app.use("/api/documents", documentRoutes);
 
 // DATABASE
 mongoose
