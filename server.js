@@ -5,6 +5,7 @@ import dotenv from "dotenv";
 import mongoose from "mongoose";
 
 import userRoutes from "./routes/userRoutes.js";
+import auditRoutes from "./routes/auditRoute.js";
 
 dotenv.config();
 
@@ -14,6 +15,8 @@ app.use(express.json());
 
 // ROUTES
 app.use("/api/users", userRoutes);
+app.use("/api/audits", auditRoutes);
+
 
 // DATABASE
 mongoose
