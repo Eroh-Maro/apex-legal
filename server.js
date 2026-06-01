@@ -4,7 +4,6 @@ import express from "express";
 import dotenv from "dotenv";
 import mongoose from "mongoose";
 import cors from "cors";
-
 import userRoutes from "./routes/userRoutes.js";
 import auditRoutes from "./routes/auditRoute.js";
 import clientRoutes from "./routes/clientRoutes.js";
