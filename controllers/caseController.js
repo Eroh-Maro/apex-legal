@@ -1,6 +1,7 @@
 // controllers/caseController.js
 
 import Case from "../models/caseModel.js";
+import { logAction } from "./auditController.js";
 import Client from "../models/clientModel.js";
 import User from "../models/userModel.js";
 
@@ -61,6 +62,22 @@ export const createCase = async (req, res) => {
       createdBy: req.user.id,
     });
 
+    // AUDIT LOG
+    await logAction(
+      req.user._id,
+      req.user.email,
+      req.user.role,
+      "CREATE_CASE",
+      "Case",
+      legalCase._id,
+      req.ip,
+      {
+        caseTitle: legalCase.title,
+        caseNumber: legalCase.caseNumber,
+      },
+      "success"
+    );
+
     res.status(201).json({
       success: true,
       message: "Case created successfully",
@@ -73,7 +90,6 @@ export const createCase = async (req, res) => {
     });
   }
 };
-
 
 // GET ALL CASES
 export const getCases = async (req, res) => {
@@ -147,6 +163,21 @@ export const updateCase = async (req, res) => {
       }
     );
 
+    // AUDIT LOG
+    await logAction(
+      req.user._id,
+      req.user.email,
+      req.user.role,
+      "UPDATE_CASE",
+      "Case",
+      updatedCase._id,
+      req.ip,
+      {
+        updatedFields: Object.keys(req.body),
+      },
+      "success"
+    );
+
     res.status(200).json({
       success: true,
       message: "Case updated successfully",
@@ -173,6 +204,22 @@ export const deleteCase = async (req, res) => {
       });
     }
 
+    // AUDIT LOG
+    await logAction(
+      req.user._id,
+      req.user.email,
+      req.user.role,
+      "DELETE_CASE",
+      "Case",
+      legalCase._id,
+      req.ip,
+      {
+        caseTitle: legalCase.title,
+        caseNumber: legalCase.caseNumber,
+      },
+      "success"
+    );
+
     await legalCase.deleteOne();
 
     res.status(200).json({
@@ -186,7 +233,6 @@ export const deleteCase = async (req, res) => {
     });
   }
 };
-
 
 // UPDATE CASE STATUS
 export const updateCaseStatus = async (req, res) => {
@@ -205,6 +251,21 @@ export const updateCaseStatus = async (req, res) => {
     legalCase.status = status;
 
     await legalCase.save();
+
+    // AUDIT LOG
+    await logAction(
+      req.user._id,
+      req.user.email,
+      req.user.role,
+      "UPDATE_CASE_STATUS",
+      "Case",
+      legalCase._id,
+      req.ip,
+      {
+        newStatus: legalCase.status,
+      },
+      "success"
+    );
 
     res.status(200).json({
       success: true,
@@ -240,6 +301,21 @@ export const addCaseNote = async (req, res) => {
     });
 
     await legalCase.save();
+
+    // AUDIT LOG
+    await logAction(
+      req.user._id,
+      req.user.email,
+      req.user.role,
+      "ADD_CASE_NOTE",
+      "Case",
+      legalCase._id,
+      req.ip,
+      {
+        notePreview: body.substring(0, 50),
+      },
+      "success"
+    );
 
     res.status(200).json({
       success: true,

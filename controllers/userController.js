@@ -1,6 +1,7 @@
 // controllers/userController.js
 
 import User from "../models/userModel.js";
+import { logAction } from "./auditController.js";
 import bcrypt from "bcryptjs";
 import jwt from "jsonwebtoken";
 
@@ -29,6 +30,21 @@ export const registerUser = async (req, res) => {
       role,
     });
 
+    // AUDIT LOG
+    await logAction(
+      user._id,
+      user.email,
+      user.role,
+      "CREATE_USER",
+      "User",
+      user._id,
+      req.ip,
+      {
+        fullName: user.fullName,
+      },
+      "success"
+    );
+
     res.status(201).json({
       message: "User registered successfully",
       user,
@@ -49,6 +65,22 @@ export const loginUser = async (req, res) => {
     const user = await User.findOne({ email });
 
     if (!user) {
+
+      // AUDIT FAILED LOGIN
+      await logAction(
+        "unknown",
+        email,
+        "unknown",
+        "LOGIN_FAILED",
+        "Auth",
+        null,
+        req.ip,
+        {
+          reason: "User not found",
+        },
+        "failed"
+      );
+
       return res.status(404).json({
         message: "User not found",
       });
@@ -58,6 +90,22 @@ export const loginUser = async (req, res) => {
     const isMatch = await bcrypt.compare(password, user.password);
 
     if (!isMatch) {
+
+      // AUDIT FAILED LOGIN
+      await logAction(
+        user._id,
+        user.email,
+        user.role,
+        "LOGIN_FAILED",
+        "Auth",
+        user._id,
+        req.ip,
+        {
+          reason: "Invalid password",
+        },
+        "failed"
+      );
+
       return res.status(400).json({
         message: "Invalid credentials",
       });
@@ -73,6 +121,19 @@ export const loginUser = async (req, res) => {
       {
         expiresIn: "7d",
       }
+    );
+
+    // AUDIT SUCCESS LOGIN
+    await logAction(
+      user._id,
+      user.email,
+      user.role,
+      "LOGIN_SUCCESS",
+      "Auth",
+      user._id,
+      req.ip,
+      {},
+      "success"
     );
 
     res.status(200).json({
@@ -148,6 +209,21 @@ export const updateUser = async (req, res) => {
       });
     }
 
+    // AUDIT LOG
+    await logAction(
+      req.user._id,
+      req.user.email,
+      req.user.role,
+      "UPDATE_USER",
+      "User",
+      updatedUser._id,
+      req.ip,
+      {
+        updatedFields: Object.keys(req.body),
+      },
+      "success"
+    );
+
     res.status(200).json({
       message: "User updated successfully",
       user: updatedUser,
@@ -164,13 +240,31 @@ export const deleteUser = async (req, res) => {
   try {
     const { id } = req.params;
 
-    const deletedUser = await User.findByIdAndDelete(id);
+    const deletedUser = await User.findById(id);
 
     if (!deletedUser) {
       return res.status(404).json({
         message: "User not found",
       });
     }
+
+    // AUDIT LOG
+    await logAction(
+      req.user._id,
+      req.user.email,
+      req.user.role,
+      "DELETE_USER",
+      "User",
+      deletedUser._id,
+      req.ip,
+      {
+        deletedUserEmail: deletedUser.email,
+        deletedUserRole: deletedUser.role,
+      },
+      "success"
+    );
+
+    await deletedUser.deleteOne();
 
     res.status(200).json({
       message: "User deleted successfully",

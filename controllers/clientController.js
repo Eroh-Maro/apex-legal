@@ -1,6 +1,7 @@
 // controllers/clientController.js
 
 import Client from "../models/clientModel.js";
+import { logAction } from "./auditController.js";
 
 
 // CREATE CLIENT
@@ -50,6 +51,21 @@ export const createClient = async (req, res) => {
       notes,
       createdBy: req.user.id,
     });
+
+    // AUDIT LOG
+    await logAction(
+      req.user._id,
+      req.user.email,
+      req.user.role,
+      "CREATE_CLIENT",
+      "Client",
+      client._id,
+      req.ip,
+      {
+        clientName: client.fullName,
+      },
+      "success"
+    );
 
     res.status(201).json({
       success: true,
@@ -101,6 +117,19 @@ export const getClientById = async (req, res) => {
       });
     }
 
+    // AUDIT LOG
+    await logAction(
+      req.user._id,
+      req.user.email,
+      req.user.role,
+      "VIEW_CLIENT",
+      "Client",
+      client._id,
+      req.ip,
+      {},
+      "success"
+    );
+
     res.status(200).json({
       success: true,
       client,
@@ -135,6 +164,21 @@ export const updateClient = async (req, res) => {
       }
     );
 
+    // AUDIT LOG
+    await logAction(
+      req.user._id,
+      req.user.email,
+      req.user.role,
+      "UPDATE_CLIENT",
+      "Client",
+      updatedClient._id,
+      req.ip,
+      {
+        updatedFields: Object.keys(req.body),
+      },
+      "success"
+    );
+
     res.status(200).json({
       success: true,
       message: "Client updated successfully",
@@ -161,6 +205,21 @@ export const deleteClient = async (req, res) => {
       });
     }
 
+    // AUDIT LOG
+    await logAction(
+      req.user._id,
+      req.user.email,
+      req.user.role,
+      "DELETE_CLIENT",
+      "Client",
+      client._id,
+      req.ip,
+      {
+        clientName: client.fullName,
+      },
+      "success"
+    );
+
     await client.deleteOne();
 
     res.status(200).json({
@@ -174,7 +233,6 @@ export const deleteClient = async (req, res) => {
     });
   }
 };
-
 
 // SEARCH CLIENTS
 export const searchClients = async (req, res) => {
