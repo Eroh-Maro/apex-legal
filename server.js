@@ -7,6 +7,7 @@ import cors from "cors";
 
 import userRoutes from "./routes/userRoutes.js";
 import clientRoutes from "./routes/clientRoutes.js"
+import caseRoutes from "./routes/caseRoutes.js"
 import documentRoutes from "./routes/documentRoutes.js";
 
 dotenv.config();
@@ -19,6 +20,7 @@ app.use(express.json());
 // ROUTES
 app.use("/api/users", userRoutes);
 app.use("/api/clients", clientRoutes);
+app.use("/api/cases", caseRoutes);
 app.use("/api/documents", documentRoutes);
 
 // DATABASE
