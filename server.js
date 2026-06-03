@@ -6,9 +6,11 @@ import mongoose from "mongoose";
 import cors from "cors";
 
 import userRoutes from "./routes/userRoutes.js";
+import auditRoutes from "./routes/auditRoute.js";
 import clientRoutes from "./routes/clientRoutes.js"
 import caseRoutes from "./routes/caseRoutes.js"
 import documentRoutes from "./routes/documentRoutes.js";
+app.use("/api/audits", auditRoutes);
 
 dotenv.config();
 
