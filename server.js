@@ -10,6 +10,7 @@ import auditRoutes from "./routes/auditRoutes.js";
 import clientRoutes from "./routes/clientRoutes.js"
 import caseRoutes from "./routes/caseRoutes.js"
 import documentRoutes from "./routes/documentRoutes.js";
+import hearingRoutes from "./routes/hearingRoutes.js";
 
 
 dotenv.config();
@@ -25,6 +26,7 @@ app.use("/api/clients", clientRoutes);
 app.use("/api/cases", caseRoutes);
 app.use("/api/documents", documentRoutes);
 app.use("/api/audits", auditRoutes)
+app.use("/api/hearings", hearingRoutes);
 
 // DATABASE
 mongoose
