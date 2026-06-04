@@ -9,18 +9,45 @@ import {
   deleteUser,
 } from "../controllers/userController.js";
 
+import {
+  protect,
+  authorize,
+} from "../middleware/authMiddleware.js";
+
 const router = express.Router();
 
+// PUBLIC ROUTES
 router.post("/register", registerUser);
-
 router.post("/login", loginUser);
 
-router.get("/", getUsers);
+// ADMIN ONLY
+router.get(
+  "/",
+  protect,
+  authorize("admin"),
+  getUsers
+);
 
-router.get("/:id", getSingleUser);
+// ANY LOGGED-IN USER CAN VIEW A USER
+router.get(
+  "/:id",
+  protect,
+  getSingleUser
+);
 
-router.patch("/:id", updateUser);
+// USER CAN UPDATE SELF, ADMIN CAN UPDATE ANYONE
+router.patch(
+  "/:id",
+  protect,
+  updateUser
+);
 
-router.delete("/:id", deleteUser)
+// ADMIN ONLY
+router.delete(
+  "/:id",
+  protect,
+  authorize("admin"),
+  deleteUser
+);
 
 export default router;

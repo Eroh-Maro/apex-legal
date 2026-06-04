@@ -11,6 +11,8 @@ import clientRoutes from "./routes/clientRoutes.js"
 import caseRoutes from "./routes/caseRoutes.js"
 import documentRoutes from "./routes/documentRoutes.js";
 import hearingRoutes from "./routes/hearingRoutes.js";
+import reminderRoutes from "./routes/reminderRoutes.js";
+import testEmailRoutes from "./routes/testEmailRoutes.js";
 
 
 dotenv.config();
@@ -27,6 +29,8 @@ app.use("/api/cases", caseRoutes);
 app.use("/api/documents", documentRoutes);
 app.use("/api/audits", auditRoutes)
 app.use("/api/hearings", hearingRoutes);
+app.use("/api/reminders", reminderRoutes);
+app.use("/api/test-email", testEmailRoutes);
 
 // DATABASE
 mongoose

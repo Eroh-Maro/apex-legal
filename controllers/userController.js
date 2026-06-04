@@ -187,6 +187,15 @@ export const updateUser = async (req, res) => {
   try {
     const { id } = req.params;
 
+    // OWNER OR ADMIN
+const isOwner = req.user.id === id;
+const isAdmin = req.user.role === "admin";
+
+if (!isOwner && !isAdmin) {
+  return res.status(403).json({
+    message: "Not authorized to update this user",
+  });
+}
     const updates = { ...req.body };
 
     // HASH PASSWORD IF USER UPDATES PASSWORD
@@ -209,7 +218,6 @@ export const updateUser = async (req, res) => {
       });
     }
 
-    // AUDIT LOG
     await logAction(
       req.user._id,
       req.user.email,
