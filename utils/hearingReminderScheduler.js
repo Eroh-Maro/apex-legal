@@ -1,17 +1,34 @@
 import cron from "node-cron";
 import Hearing from "../models/hearingModel.js";
-import Case from "../models/caseModel.js";
 import { sendEmail } from "./sendEmail.js";
 import { logAction } from "../controllers/auditController.js";
 
 const startHearingReminderScheduler = () => {
-  // Every day at 8:00 AM
+  console.log("Starting hearing reminder scheduler...");
+
+  // Every minute (testing)
   cron.schedule("* * * * *", async () => {
     try {
+      console.log("Reminder scheduler running...");
+
       const now = new Date();
 
       const tomorrow = new Date();
-      tomorrow.setDate(tomorrow.getDate() + 1);
+      tomorrow.setDate(tomorrow.getDate() + 7);
+
+      console.log("NOW:", now);
+      console.log("TOMORROW:", tomorrow);
+
+      const allHearings = await Hearing.find();
+
+      console.log(
+        "ALL HEARINGS:",
+        allHearings.map((h) => ({
+          title: h.title,
+          hearingDate: h.hearingDate,
+          status: h.status,
+        }))
+      );
 
       const hearings = await Hearing.find({
         hearingDate: {
@@ -26,8 +43,19 @@ const startHearingReminderScheduler = () => {
         },
       });
 
+      console.log(`Found ${hearings.length} upcoming hearings`);
+
       for (const hearing of hearings) {
-        const lawyer = hearing.case.assignedLawyer;
+        const lawyer = hearing.case?.assignedLawyer;
+
+        if (!lawyer) {
+          console.log(
+            `No assigned lawyer found for hearing: ${hearing.title}`
+          );
+          continue;
+        }
+
+        console.log(`Sending reminder for ${hearing.title}`);
 
         await sendEmail(
           lawyer.email,
@@ -64,9 +92,12 @@ const startHearingReminderScheduler = () => {
           null,
           {
             reminderType: "hearing",
+            hearingTitle: hearing.title,
           },
           "success"
         );
+
+        console.log(`Reminder sent for ${hearing.title}`);
       }
     } catch (error) {
       console.error("Hearing reminder scheduler error:", error);
