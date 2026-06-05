@@ -1,6 +1,7 @@
 import Hearing from "../models/hearingModel.js";
 import Case from "../models/caseModel.js";
 import { logAction } from "./auditController.js";
+import { sendEmail } from "../utils/sendEmail.js";
 
 // CREATE HEARING
 export const createHearing = async (req, res) => {
@@ -14,7 +15,8 @@ export const createHearing = async (req, res) => {
       judge,
     } = req.body;
 
-    const legalCase = await Case.findById(caseId);
+    const legalCase = await Case.findById(caseId)
+      .populate("assignedLawyer");
 
     if (!legalCase) {
       return res.status(404).json({
@@ -33,6 +35,34 @@ export const createHearing = async (req, res) => {
       createdBy: req.user._id,
     });
 
+    // EMAIL NOTIFICATION
+await sendEmail(
+  legalCase.assignedLawyer.email,
+  "Hearing Scheduled",
+  `
+  <div style="font-family: Arial, sans-serif; max-width: 600px; line-height: 1.6;">
+    <h2>Hearing Scheduled</h2>
+
+    <p>
+      Hello ${legalCase.assignedLawyer.fullName},
+      a hearing has been scheduled for one of your cases.
+    </p>
+
+    <p><strong>Case:</strong> ${legalCase.title}</p>
+    <p><strong>Hearing:</strong> ${title}</p>
+    <p><strong>Date:</strong> ${new Date(
+      hearingDate
+    ).toLocaleString()}</p>
+    <p><strong>Court:</strong> ${courtName}</p>
+
+    <p style="font-size: 13px; color: #888; margin-top: 20px;">
+      Please log in to Apex Legal to review the hearing details.
+    </p>
+  </div>
+  `
+);
+
+    // AUDIT LOG
     await logAction(
       req.user._id,
       req.user.email,

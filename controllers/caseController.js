@@ -4,6 +4,7 @@ import Case from "../models/caseModel.js";
 import { logAction } from "./auditController.js";
 import Client from "../models/clientModel.js";
 import User from "../models/userModel.js";
+import { sendEmail } from "../utils/sendEmail.js";
 
 
 // CREATE CASE
@@ -62,6 +63,26 @@ export const createCase = async (req, res) => {
       createdBy: req.user.id,
     });
 
+    // EMAIL NOTIFICATION
+await sendEmail(
+  lawyer.email,
+  "New Case Assignment",
+  `
+  <div style="font-family: Arial, sans-serif; max-width: 600px; line-height: 1.6;">
+    <h2>New Case Assigned</h2>
+
+    <p>Hello ${lawyer.fullName}, you have been assigned a new case.</p>
+
+    <p><strong>Title:</strong> ${legalCase.title}</p>
+    <p><strong>Case Number:</strong> ${legalCase.caseNumber}</p>
+    <p><strong>Case Type:</strong> ${legalCase.caseType}</p>
+
+    <p style="font-size: 13px; color: #888; margin-top: 20px;">
+      Please log in to Apex Legal to review the case.
+    </p>
+  </div>
+  `
+);
     // AUDIT LOG
     await logAction(
       req.user._id,
