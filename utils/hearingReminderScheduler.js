@@ -6,34 +6,20 @@ import { logAction } from "../controllers/auditController.js";
 const startHearingReminderScheduler = () => {
   console.log("Starting hearing reminder scheduler...");
 
-  // Every minute (testing)
-  cron.schedule("* * * * *", async () => {
+  // Every morning at 8AM
+  cron.schedule("0 8 * * *", async () => {
     try {
       console.log("Reminder scheduler running...");
 
       const now = new Date();
 
-      const tomorrow = new Date();
-      tomorrow.setDate(tomorrow.getDate() + 7);
-
-      console.log("NOW:", now);
-      console.log("TOMORROW:", tomorrow);
-
-      const allHearings = await Hearing.find();
-
-      console.log(
-        "ALL HEARINGS:",
-        allHearings.map((h) => ({
-          title: h.title,
-          hearingDate: h.hearingDate,
-          status: h.status,
-        }))
-      );
+      const reminderWindow = new Date();
+      reminderWindow.setDate(reminderWindow.getDate() + 30);
 
       const hearings = await Hearing.find({
         hearingDate: {
           $gte: now,
-          $lte: tomorrow,
+          $lte: reminderWindow,
         },
         status: "scheduled",
       }).populate({
@@ -45,6 +31,8 @@ const startHearingReminderScheduler = () => {
 
       console.log(`Found ${hearings.length} upcoming hearings`);
 
+      const DAY_IN_MS = 24 * 60 * 60 * 1000;
+
       for (const hearing of hearings) {
         const lawyer = hearing.case?.assignedLawyer;
 
@@ -55,18 +43,55 @@ const startHearingReminderScheduler = () => {
           continue;
         }
 
-        console.log(`Sending reminder for ${hearing.title}`);
+        const daysUntilHearing = Math.ceil(
+          (new Date(hearing.hearingDate) - now) / DAY_IN_MS
+        );
+
+        let reminderStage = null;
+
+        if (
+          daysUntilHearing <= 1 &&
+          !hearing.remindersSent.oneDay
+        ) {
+          reminderStage = "24 Hour Reminder";
+          hearing.remindersSent.oneDay = true;
+        } else if (
+          daysUntilHearing <= 3 &&
+          !hearing.remindersSent.threeDays
+        ) {
+          reminderStage = "3 Day Reminder";
+          hearing.remindersSent.threeDays = true;
+        } else if (
+          daysUntilHearing <= 7 &&
+          !hearing.remindersSent.week
+        ) {
+          reminderStage = "7 Day Reminder";
+          hearing.remindersSent.week = true;
+        } else if (
+          daysUntilHearing <= 30 &&
+          !hearing.remindersSent.month
+        ) {
+          reminderStage = "30 Day Reminder";
+          hearing.remindersSent.month = true;
+        }
+
+        if (!reminderStage) {
+          continue;
+        }
 
         await sendEmail(
           lawyer.email,
-          "Upcoming Hearing Reminder",
+          reminderStage,
           `
           <div style="font-family: Arial, sans-serif; max-width: 600px; line-height: 1.6;">
-            <h2>Upcoming Hearing Reminder</h2>
+            <h2>${reminderStage}</h2>
 
             <p>Hello ${lawyer.fullName},</p>
 
-            <p>You have a hearing scheduled within the next 24 hours.</p>
+            <p>
+              This is your ${reminderStage.toLowerCase()}
+              for an upcoming hearing.
+            </p>
 
             <p><strong>Case:</strong> ${hearing.case.title}</p>
             <p><strong>Hearing:</strong> ${hearing.title}</p>
@@ -82,6 +107,8 @@ const startHearingReminderScheduler = () => {
           `
         );
 
+        await hearing.save();
+
         await logAction(
           lawyer._id,
           lawyer.email,
@@ -92,15 +119,21 @@ const startHearingReminderScheduler = () => {
           null,
           {
             reminderType: "hearing",
+            reminderStage,
             hearingTitle: hearing.title,
           },
           "success"
         );
 
-        console.log(`Reminder sent for ${hearing.title}`);
+        console.log(
+          `${reminderStage} sent for ${hearing.title}`
+        );
       }
     } catch (error) {
-      console.error("Hearing reminder scheduler error:", error);
+      console.error(
+        "Hearing reminder scheduler error:",
+        error
+      );
     }
   });
 };

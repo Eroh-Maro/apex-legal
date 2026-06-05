@@ -62,6 +62,28 @@ const hearingSchema = new mongoose.Schema(
       default: "scheduled",
     },
 
+    remindersSent: {
+      month: {
+        type: Boolean,
+        default: false,
+      },
+
+      week: {
+        type: Boolean,
+        default: false,
+      },
+
+      threeDays: {
+        type: Boolean,
+        default: false,
+      },
+
+      oneDay: {
+        type: Boolean,
+        default: false,
+      },
+    },
+
     createdBy: {
       type: mongoose.Schema.Types.ObjectId,
       ref: "User",
