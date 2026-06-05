@@ -14,6 +14,7 @@ import hearingRoutes from "./routes/hearingRoutes.js";
 import reminderRoutes from "./routes/reminderRoutes.js";
 import testEmailRoutes from "./routes/testEmailRoutes.js";
 import startHearingReminderScheduler from "./utils/hearingReminderScheduler.js";
+import dashboardRoutes from "./routes/dashboardRoutes.js";
 
 
 dotenv.config();
@@ -32,6 +33,7 @@ app.use("/api/audits", auditRoutes)
 app.use("/api/hearings", hearingRoutes);
 app.use("/api/reminders", reminderRoutes);
 app.use("/api/test-email", testEmailRoutes);
+app.use("/api/dashboard", dashboardRoutes);
 
 // DATABASE
 mongoose
