@@ -13,6 +13,7 @@ import documentRoutes from "./routes/documentRoutes.js";
 import hearingRoutes from "./routes/hearingRoutes.js";
 import reminderRoutes from "./routes/reminderRoutes.js";
 import testEmailRoutes from "./routes/testEmailRoutes.js";
+import startHearingReminderScheduler from "./utils/hearingReminderScheduler.js";
 
 
 dotenv.config();
@@ -37,6 +38,8 @@ mongoose
   .connect(process.env.MONGO_URI)
   .then(() => console.log("MongoDB Connected"))
   .catch((err) => console.log(err));
+
+startHearingReminderScheduler();
 
 const PORT = process.env.PORT || 8080;
 
