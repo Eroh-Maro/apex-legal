@@ -24,11 +24,32 @@ const userSchema = new mongoose.Schema(
       minlength: 6,
     },
 
+    resetPasswordToken: {
+      type: String,
+      default: null,
+    },
+
+    resetPasswordExpires: {
+      type: Date,
+      default: null,
+    },
     role: {
       type: String,
-      enum: ["lawyer", "admin", "secretary", "practice manager", "paralegal", "unknown"],
+      enum: [
+        "lawyer",
+        "admin",
+        "secretary",
+        "practice manager",
+        "paralegal",
+        "unknown",
+      ],
       default: "lawyer",
     },
+
+    isActive: {
+  type: Boolean,
+  default: true,
+},
 
     phone: {
       type: String,

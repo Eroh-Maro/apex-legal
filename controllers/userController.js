@@ -2,6 +2,8 @@
 
 import User from "../models/userModel.js";
 import { logAction } from "./auditController.js";
+import crypto from "crypto";
+import { sendEmail } from "../utils/sendEmail.js";
 import bcrypt from "bcryptjs";
 import jwt from "jsonwebtoken";
 
@@ -83,6 +85,28 @@ export const loginUser = async (req, res) => {
 
       return res.status(404).json({
         message: "User not found",
+      });
+    }
+
+    // CHECK IF ACCOUNT IS DEACTIVATED
+    if (user.isActive === false) {
+
+      await logAction(
+        user._id,
+        user.email,
+        user.role,
+        "LOGIN_FAILED",
+        "Auth",
+        user._id,
+        req.ip,
+        {
+          reason: "Account deactivated",
+        },
+        "failed"
+      );
+
+      return res.status(403).json({
+        message: "Account has been deactivated",
       });
     }
 
@@ -279,6 +303,208 @@ export const deleteUser = async (req, res) => {
     });
   } catch (error) {
     res.status(500).json({
+      message: error.message,
+    });
+  }
+};
+
+export const forgotPassword = async (req, res) => {
+  try {
+    const { email } = req.body;
+
+    const user = await User.findOne({ email });
+
+    if (!user) {
+      return res.status(404).json({
+        message: "User not found",
+      });
+    }
+
+    const resetToken = crypto.randomBytes(32).toString("hex");
+
+    user.resetPasswordToken = crypto
+      .createHash("sha256")
+      .update(resetToken)
+      .digest("hex");
+
+    user.resetPasswordExpires =
+      Date.now() + 15 * 60 * 1000;
+
+    await user.save();
+
+    const resetUrl = `${process.env.FRONTEND_URL}/reset-password/${resetToken}`;
+
+    await sendEmail(
+      user.email,
+      "Reset Your Password",
+      `
+      <h2>Password Reset Request</h2>
+
+      <p>Hello ${user.fullName},</p>
+
+      <p>Click the link below to reset your password:</p>
+
+      <a href="${resetUrl}">
+        Reset Password
+      </a>
+
+      <p>This link expires in 15 minutes.</p>
+      `
+    );
+
+    res.status(200).json({
+      message: "Password reset email sent",
+    });
+  } catch (error) {
+    res.status(500).json({
+      message: error.message,
+    });
+  }
+};
+
+export const resetPassword = async (req, res) => {
+  try {
+    const { token } = req.params;
+    const { password } = req.body;
+
+    const hashedToken = crypto
+      .createHash("sha256")
+      .update(token)
+      .digest("hex");
+
+    const user = await User.findOne({
+      resetPasswordToken: hashedToken,
+      resetPasswordExpires: {
+        $gt: Date.now(),
+      },
+    });
+
+    if (!user) {
+      return res.status(400).json({
+        message: "Invalid or expired token",
+      });
+    }
+
+    user.password = await bcrypt.hash(password, 10);
+
+    user.resetPasswordToken = null;
+    user.resetPasswordExpires = null;
+
+    await user.save();
+
+    res.status(200).json({
+      message: "Password reset successful",
+    });
+  } catch (error) {
+    res.status(500).json({
+      message: error.message,
+    });
+  }
+};
+
+export const deactivateUser = async (req, res) => {
+  try {
+    const { id } = req.params;
+
+    const user = await User.findByIdAndUpdate(
+      id,
+      { isActive: false },
+      { new: true }
+    ).select("-password");
+
+    if (!user) {
+      return res.status(404).json({
+        message: "User not found",
+      });
+    }
+
+    await logAction(
+      req.user._id,
+      req.user.email,
+      req.user.role,
+      "DEACTIVATE_USER",
+      "User",
+      user._id,
+      req.ip,
+      {
+        deactivatedUserEmail: user.email,
+      },
+      "success"
+    );
+
+    res.status(200).json({
+      message: "User deactivated successfully",
+      user,
+    });
+  } catch (error) {
+    res.status(500).json({
+      message: error.message,
+    });
+  }
+};
+
+export const reactivateUser = async (req, res) => {
+  try {
+    const { id } = req.params;
+
+    const user = await User.findByIdAndUpdate(
+      id,
+      { isActive: true },
+      { new: true }
+    ).select("-password");
+
+    if (!user) {
+      return res.status(404).json({
+        message: "User not found",
+      });
+    }
+
+    await logAction(
+      req.user._id,
+      req.user.email,
+      req.user.role,
+      "REACTIVATE_USER",
+      "User",
+      user._id,
+      req.ip,
+      {
+        reactivatedUserEmail: user.email,
+      },
+      "success"
+    );
+
+    res.status(200).json({
+      message: "User reactivated successfully",
+      user,
+    });
+  } catch (error) {
+    res.status(500).json({
+      message: error.message,
+    });
+  }
+};
+
+export const logoutUser = async (req, res) => {
+  try {
+    await logAction(
+      req.user._id,
+      req.user.email,
+      req.user.role,
+      "LOGOUT",
+      "Auth",
+      req.user._id,
+      req.ip,
+      {},
+      "success"
+    );
+
+    res.status(200).json({
+      success: true,
+      message: "Logged out successfully",
+    });
+  } catch (error) {
+    res.status(500).json({
+      success: false,
       message: error.message,
     });
   }
