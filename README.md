@@ -23,8 +23,6 @@ Backend API for the Apex Legal Case Management System.
 
 
 
-
-
 ---
 
 # Base URL
@@ -57,6 +55,8 @@ Supported RBAC roles:
 * Practice Manager
 * Paralegal
 
+
+
 ---
 
 # Features
@@ -69,9 +69,18 @@ Supported RBAC roles:
 * Document Upload System
 * Audit Logging
 * Case Search & Filtering
-* Financial & Billing Management
-* Communication Hub
-* Smart Notifications & Scheduling
+
+---
+
+# Environment Variables
+
+Create a `.env` file:
+
+```env
+PORT=8080
+MONGO_URI=your_mongodb_connection
+JWT_SECRET=your_secret_key
+```
 
 ---
 
@@ -499,17 +508,7 @@ System automatically manages and enforces:
 
 
 
-# Environment Variables
 
-Create a `.env` file:
-
-```env
-PORT=8080
-MONGO_URI=your_mongodb_connection
-JWT_SECRET=your_secret_key
-```
-
----
 
  # Run Locally
 
@@ -536,8 +535,61 @@ npm run dev
 * Advanced Analytics Dashboard
 * Email Notifications
 * Rate Limiting & Security Hardening
+* AI legal drafting
+* Court e-filing integrations
+* Smart Notifications & Scheduling
+* Video conferencing
+* WhatApp notifications
+* Time tracking
+* client portal
 
 ---
+
+# Architectural Breakdown
+# config
+
+* Purpose: Configuration Layer.
+
+* Role: This folder holds configuration files for the application. This typically includes database connection setups (e.g., Mongoose/Sequelize initializations), third-party API configurations (like Stripe or AWS), and environment variable initializations.
+
+# controllers
+
+* Purpose: HTTP Request Handlers (Business Logic Gateway).
+
+* Role: Controllers handle the incoming HTTP requests from the client. They extract data from parameters or request bodies, call the necessary business logic or database operations, and return the appropriate HTTP response (e.g., 200 OK with JSON data, or a 400 Bad Request error).
+
+# middleware
+
+* Purpose: Interceptor / Pipeline Layer.
+
+* Role: Functions that execute before a request reaches your controllers. Common examples in this folder include:
+
+Authentication/Authorization checks (e.g., verifying JWT tokens).
+
+Request validation (ensuring required fields are present).
+
+Centralized error-handling middleware.
+
+Logging or rate-limiting.
+
+
+# models
+* Purpose: Data Access & Schema Layer.
+
+* Role: Defines the data structures, schemas, and relationships for your database (e.g., User, Case, Document schemas if this is a legal app). It communicates directly with your database management system via an ORM/ODM like Mongoose, Sequelize, or Prisma.
+
+# utils
+* Purpose: Helper / Utility Layer.
+
+* Role: Houses reusable, standalone helper functions that don't belong to a specific business domain. Examples include custom date formatters, token generators, password hashing utilities, or email sending wrappers.
+
+
+# Root Files (server.js, package.json, etc.)
+* server.js: The entry point of your application. It spins up the Express/Node server, initializes database connections, attaches global middleware (like CORS or JSON parsers), and mounts the main router.
+
+* package.json & package-lock.json: Node.js manifest files managing your project dependencies and scripts.
+
+* .gitignore: Ensures local configurations, dependencies (node_modules), and secrets (.env) aren't pushed to version control.
 
 # Author
 Eroh oghnemaro divine
