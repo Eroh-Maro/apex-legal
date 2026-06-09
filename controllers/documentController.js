@@ -1,5 +1,5 @@
 import crypto from "crypto";
-import Document from "../models/DocumentModel.js";
+import Document from "../models/documentModel.js";
 import { logAction } from "./auditController.js";
 
 export const uploadDocument = async (req, res) => {
