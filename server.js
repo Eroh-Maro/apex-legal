@@ -24,6 +24,13 @@ app.use(cors());
 
 app.use(express.json());
 
+app.get("/", (req, res) => {
+  res.status(200).json({
+    success: true,
+    message: "Apex Legal API is running",
+  });
+});
+
 // ROUTES
 app.use("/api/users", userRoutes);
 app.use("/api/clients", clientRoutes);
