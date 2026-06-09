@@ -528,12 +528,9 @@ npm run dev
 
 # Future Improvements
 
-* Hearing Management
-* Reminder & Notification System
-* Cloudinary / AWS S3 Integration
+* AWS S3 Integration
 * Swagger API Documentation
 * Advanced Analytics Dashboard
-* Email Notifications
 * Rate Limiting & Security Hardening
 * AI legal drafting
 * Court e-filing integrations
