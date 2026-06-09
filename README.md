@@ -14,7 +14,12 @@ Backend API for the Apex Legal Case Management System.
 
 ---
 
-# Base URL
+# Base URL (Online)
+
+```txt
+https://apex-legal-1.onrender.com/api
+```
+# Base URL (Local)
 
 ```txt
 http://localhost:8080/api
@@ -51,6 +56,9 @@ Supported RBAC roles:
 * User Authentication & Authorization
 * Role-Based Access Control (RBAC)
 * Client Management
+* Hearing Management
+* Email notifications
+* Schedule management
 * Case Management
 * Case Notes
 * Document Upload System
