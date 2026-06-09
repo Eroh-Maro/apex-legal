@@ -108,7 +108,7 @@ DELETE /api/users/:id
 ## Create Client
 
 ```http
-POST /api/clients
+POST /api/clients/create
 ```
 
 ## Get All Clients
@@ -148,7 +148,7 @@ GET /api/clients/search?q=john
 ## Create Case
 
 ```http
-POST /api/cases
+POST /api/cases/create
 ```
 
 ## Get All Cases
@@ -302,12 +302,9 @@ npm run dev
 
 # Future Improvements
 
-* Hearing Management
-* Reminder & Notification System
-* Cloudinary / AWS S3 Integration
+* AWS S3 Integration
 * Swagger API Documentation
 * Advanced Analytics Dashboard
-* Email Notifications
 * Rate Limiting & Security Hardening
 
 ---

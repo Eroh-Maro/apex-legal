@@ -47,9 +47,9 @@ const userSchema = new mongoose.Schema(
     },
 
     isActive: {
-  type: Boolean,
-  default: true,
-},
+      type: Boolean,
+      default: true,
+    },
 
     phone: {
       type: String,
