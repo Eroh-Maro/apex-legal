@@ -1,324 +1,479 @@
-# Apex Legal Backend API
+Apex Legal Backend API
 
-Backend API for the Apex Legal Case Management System.
-
-## Tech Stack
-
-* Node.js
-* Express.js
-* MongoDB
-* Mongoose
-* JWT Authentication
-* Multer
-* bcryptjs
+Backend API powering the Apex Legal Case Management System. The platform is designed to help legal firms manage users, clients, cases, hearings, documents, audit trails, and automated hearing reminders.
 
 ---
 
-# Base URL (Online)
+Tech Stack
 
-```txt
+- Node.js
+- Express.js
+- MongoDB Atlas
+- Mongoose
+- JWT Authentication
+- bcryptjs
+- Multer
+- Cloudinary
+- Node Cron
+- Nodemailer
+
+---
+
+Base URL (Production)
+
 https://apex-legal-1.onrender.com/api
-```
-# Base URL (Local)
 
-```txt
+Base URL (Local)
+
 http://localhost:8080/api
-```
 
 ---
 
-# Authentication
+Authentication
 
-Protected routes require JWT Bearer Token.
+Protected routes require a JWT Bearer Token.
 
 Example:
 
-```http
 Authorization: Bearer YOUR_TOKEN
-```
 
 ---
 
-# User Roles
+User Roles (RBAC)
 
-Supported RBAC roles:
+Supported roles:
 
-* admin
-* lawyer
-* Secretary
-* Practice Manager
-* Paralegal
+- admin
+- lawyer
+- Secretary
+- Practice Manager
+- Paralegal
 
----
-
-# Features
-
-* User Authentication & Authorization
-* Role-Based Access Control (RBAC)
-* Client Management
-* Hearing Management
-* Email notifications
-* Schedule management
-* Case Management
-* Case Notes
-* Document Upload System
-* Audit Logging
-* Case Search & Filtering
+Role-Based Access Control (RBAC) is enforced throughout the system to restrict access to sensitive operations.
 
 ---
 
-# API Routes
+Core Features
+
+Authentication & Security
+
+- User Registration
+- User Login
+- User Logout
+- JWT Authentication
+- Password Hashing (bcrypt)
+- Forgot Password
+- Password Reset
+- User Deactivation
+- User Reactivation
+- Role-Based Access Control
+
+Client Management
+
+- Create Clients
+- Update Clients
+- Delete Clients
+- Search Clients
+- Client History Tracking
+
+Case Management
+
+- Create Cases
+- Update Cases
+- Delete Cases
+- Case Status Updates
+- Case Notes
+- Search & Filtering
+- Lawyer Assignment
+
+Hearing Management
+
+- Hearing Scheduling
+- Hearing Status Tracking
+- Hearing Updates
+- Hearing Reminders
+
+Document Management
+
+- Cloudinary File Storage
+- File Upload
+- File Download
+- File Preview (supported formats)
+- SHA-256 Integrity Verification
+- Case Linking
+
+Audit Logging
+
+Automatic tracking of:
+
+- Login Activity
+- Failed Login Attempts
+- User Updates
+- Client Operations
+- Case Operations
+- Hearing Operations
+- Document Uploads
+- Resource Access
+
+Dashboard Analytics
+
+- Total Users
+- Total Clients
+- Total Cases
+- Total Hearings
+- Open Cases
+- Closed Cases
+- Upcoming Hearings
+
+Automated Scheduler
+
+Automated hearing reminders:
+
+- 30 Days Before Hearing
+- 7 Days Before Hearing
+- 3 Days Before Hearing
+- 1 Day Before Hearing
+
+Duplicate reminders are prevented through reminder tracking flags.
 
 ---
 
-# USER ROUTES
+API ROUTES
 
-## Register User
+---
 
-```http
+USER ROUTES
+
+Register User
+
 POST /api/users/register
-```
 
-## Login User
+Sample Request
 
-```http
+{
+  "fullName": "John Doe",
+  "email": "john.doe@apexlegal.com",
+  "password": "Password123!",
+  "role": "lawyer"
+}
+
+---
+
+Login User
+
 POST /api/users/login
-```
 
-## Get All Users
+Sample Request
 
-```http
+{
+  "email": "john.doe@apexlegal.com",
+  "password": "Password123!"
+}
+
+---
+
+Logout User
+
+POST /api/users/logout
+
+---
+
+Forgot Password
+
+POST /api/users/forgot-password
+
+Sample Request
+
+{
+  "email": "john.doe@apexlegal.com"
+}
+
+---
+
+Reset Password
+
+POST /api/users/reset-password/:token
+
+Sample Request
+
+{
+  "password": "NewPassword123!"
+}
+
+---
+
+Get All Users
+
 GET /api/users
-```
 
-## Get Single User
+Get Single User
 
-```http
 GET /api/users/:id
-```
 
-## Update User
+Update User
 
-```http
 PATCH /api/users/:id
-```
 
-## Delete User
+Delete User
 
-```http
 DELETE /api/users/:id
-```
+
+Deactivate User
+
+PATCH /api/users/:id/deactivate
+
+Reactivate User
+
+PATCH /api/users/:id/reactivate
 
 ---
 
-# CLIENT ROUTES
+CLIENT ROUTES
 
-## Create Client
+Create Client
 
-```http
 POST /api/clients/create
-```
 
-## Get All Clients
+Sample Request
 
-```http
+{
+  "fullName": "Jane Smith",
+  "email": "jane.smith@example.com",
+  "phone": "+2348012345678",
+  "address": "Lagos, Nigeria"
+}
+
+Get All Clients
+
 GET /api/clients
-```
 
-## Get Single Client
+Get Single Client
 
-```http
 GET /api/clients/:id
-```
 
-## Update Client
+Update Client
 
-```http
 PATCH /api/clients/:id
-```
 
-## Delete Client
+Delete Client
 
-```http
 DELETE /api/clients/:id
-```
 
-## Search Clients
+Search Clients
 
-```http
 GET /api/clients/search?q=john
-```
 
 ---
 
-# CASE ROUTES
+CASE ROUTES
 
-## Create Case
+Create Case
 
-```http
 POST /api/cases/create
-```
 
-## Get All Cases
+Sample Request
 
-```http
+{
+  "title": "Property Ownership Dispute",
+  "description": "Land ownership dispute between two parties.",
+  "client": "CLIENT_ID",
+  "assignedLawyer": "LAWYER_ID",
+  "status": "Open"
+}
+
+Get All Cases
+
 GET /api/cases
-```
 
-## Get Single Case
+Get Single Case
 
-```http
 GET /api/cases/:id
-```
 
-## Update Case
+Update Case
 
-```http
 PATCH /api/cases/:id
-```
 
-## Delete Case
+Delete Case
 
-```http
 DELETE /api/cases/:id
-```
 
-## Update Case Status
+Update Case Status
 
-```http
 PATCH /api/cases/:id/status
-```
 
-## Add Case Note
+Add Case Note
 
-```http
 POST /api/cases/:id/notes
-```
 
-## Search Cases
+Sample Request
 
-```http
+{
+  "note": "Client submitted additional evidence for review."
+}
+
+Search Cases
+
 GET /api/cases/search?q=land
-```
 
-## Get Cases By Status
+Get Cases By Status
 
-```http
 GET /api/cases/status/open
-```
 
-## Get Cases By Client
+Get Cases By Client
 
-```http
 GET /api/cases/client/:clientId
-```
 
-## Get Lawyer Cases
+Get Lawyer Cases
 
-```http
 GET /api/cases/lawyer/:lawyerId
-```
 
 ---
 
-# DOCUMENT ROUTES
+DOCUMENT ROUTES
 
-## Upload Document
+Upload Document
 
-```http
 POST /api/documents/upload
-```
 
-## Get Documents By Case
+Content Type
 
-```http
+multipart/form-data
+
+Fields
+
+Field| Type
+evidence| File
+caseId| String
+category| String
+tag| String
+
+Example
+
+evidence = contract.pdf
+caseId = CASE_ID
+category = Corporate Law
+tag = Contract Evidence
+
+Get Documents By Case
+
 GET /api/documents/case/:caseId
-```
 
-## Get All Documents
+Get All Documents
 
-```http
-GET /api/documents
-```
+GET /api/documents/all-raw
 
 ---
 
-# AUDIT ROUTES
+AUDIT ROUTES
 
-## Get Audit Logs
+Get Audit Logs
 
-```http
 GET /api/audits
-```
 
-## Get Login Activity
+Get Login Activity
 
-```http
 GET /api/audits/login-activity
-```
 
-## Get Resource History
+Get Resource History
 
-```http
 GET /api/audits/resource/:resourceId
-```
 
 ---
 
-# Audit Features
+Dashboard Routes
 
-System automatically logs:
+Dashboard Statistics
 
-* User Login Activity
-* Failed Login Attempts
-* User Updates
-* Client Creation & Updates
-* Case Creation & Updates
-* Case Notes
-* Document Upload Activity
-* Resource Access History
+GET /api/dashboard/stats
+
+Returns:
+
+- Total Users
+- Total Clients
+- Total Cases
+- Total Hearings
+- Open Cases
+- Closed Cases
+- Upcoming Hearings
 
 ---
 
-# Environment Variables
+Environment Variables
 
-Create a `.env` file:
+Create a ".env" file:
 
-```env
 PORT=8080
+
 MONGO_URI=your_mongodb_connection
-JWT_SECRET=your_secret_key
-```
+
+JWT_SECRET=your_jwt_secret
+
+EMAIL_USER=your_email_address
+
+EMAIL_PASS=your_email_password
+
+CLOUDINARY_CLOUD_NAME=your_cloud_name
+
+CLOUDINARY_API_KEY=your_api_key
+
+CLOUDINARY_API_SECRET=your_api_secret
 
 ---
 
- # Run Locally
+Run Locally
 
 Install dependencies:
 
-```bash
 npm install
-```
 
 Run development server:
 
-```bash
 npm run dev
-```
 
 ---
 
-# Future Improvements
+Deployment
 
-* AWS S3 Integration
-* Swagger API Documentation
-* Advanced Analytics Dashboard
-* Rate Limiting & Security Hardening
+Backend Hosting:
+
+Render
+
+Database:
+
+MongoDB Atlas
+
+Document Storage:
+
+Cloudinary
 
 ---
 
-# Author
-Eroh oghnemaro divine
-Olesgun Adeyemi
-Abdulrahmon Quadri Abiodun
+Security Features
+
+- JWT Authentication
+- Role-Based Access Control
+- Password Hashing
+- Password Reset Tokens
+- Account Deactivation
+- Audit Logging
+- File Integrity Verification (SHA-256)
+
+---
+
+Future Improvements
+
+- Swagger API Documentation
+- Rate Limiting
+- Two-Factor Authentication
+- Advanced Analytics Dashboard
+- Case Reporting Exports
+
+---
+
+Authors
+
+- Eroh Oghenemaro Divine
+- Abdulrahmon Quadri Abiodun
+- Olesegun Adeyemi
+
 Apex Legal Backend System
