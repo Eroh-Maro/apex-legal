@@ -9,7 +9,7 @@ const upload = multer({
   limits: { fileSize: 25 * 1024 * 1024 }, // Capped at 25MB to prevent buffer allocation overloads
 });
 
-router.get("/all-raw", getAllDocumentsRaw);
+router.get("/all-raw", protect, getAllDocumentsRaw);
 router.post("/upload", protect, upload.single("evidence"), uploadDocument);
 router.get("/case/:caseId", protect, getDocumentsByCase);
 

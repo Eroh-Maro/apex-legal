@@ -1,6 +1,25 @@
 import crypto from "crypto";
 import Document from "../models/documentModel.js";
+import cloudinary from "../config/cloudinary.js";
 import { logAction } from "./auditController.js";
+
+const uploadToCloudinary = (buffer, originalname) => {
+  return new Promise((resolve, reject) => {
+    cloudinary.uploader
+      .upload_stream(
+        {
+          folder: "apex-legal-documents",
+          resource_type: "auto",
+          public_id: `${Date.now()}-${originalname}`,
+        },
+        (error, result) => {
+          if (error) return reject(error);
+          resolve(result);
+        }
+      )
+      .end(buffer);
+  });
+};
 
 export const uploadDocument = async (req, res) => {
   try {
@@ -12,19 +31,22 @@ export const uploadDocument = async (req, res) => {
 
     const { caseId, category, tag } = req.body;
 
-    // Cryptographic calculation matching digital compliance guidelines
+    // SHA-256 Integrity Hash
     const hash = crypto
       .createHash("sha256")
       .update(req.file.buffer)
       .digest("hex");
 
-    // Cloud storage path indicator
-    const computedUrl = `https://cdn.apexlegal.ng/vault/${Date.now()}_${req.file.originalname}`;
+    // CLOUDINARY UPLOAD
+    const cloudinaryResult = await uploadToCloudinary(
+      req.file.buffer,
+      req.file.originalname
+    );
 
     const document = await Document.create({
       case: caseId,
       fileName: req.file.originalname,
-      fileUrl: computedUrl,
+      fileUrl: cloudinaryResult.secure_url,
       uploadedBy: req.user._id,
       category,
       tag,
@@ -35,7 +57,6 @@ export const uploadDocument = async (req, res) => {
       },
     });
 
-    // AUDIT LOG
     await logAction(
       req.user._id,
       req.user.email,
@@ -52,7 +73,7 @@ export const uploadDocument = async (req, res) => {
     );
 
     res.status(201).json({
-      message: "🛡️ Document ingested and hashed for verification.",
+      message: "🛡️ Document uploaded, stored, and hashed for verification.",
       record: document,
     });
   } catch (error) {
@@ -66,7 +87,6 @@ export const getDocumentsByCase = async (req, res) => {
   try {
     const { caseId } = req.params;
 
-    // Querying directly by the raw string ID to prevent Mongoose schema population crashes
     const documents = await Document.find({
       case: caseId,
     });
@@ -77,7 +97,6 @@ export const getDocumentsByCase = async (req, res) => {
       });
     }
 
-    // AUDIT LOG
     await logAction(
       req.user._id,
       req.user.email,
@@ -100,12 +119,10 @@ export const getDocumentsByCase = async (req, res) => {
   }
 };
 
-// GET ALL DOCUMENTS
 export const getAllDocumentsRaw = async (req, res) => {
   try {
     const documents = await Document.find({});
 
-    // AUDIT LOG
     await logAction(
       req.user._id,
       req.user.email,
