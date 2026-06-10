@@ -35,17 +35,14 @@ http://localhost:8080/api
 
 1. Register User
 
-POST ```/api/users/register
-```
+POST ```/api/users/register```
 Sample Request
-```
-{
+```{
   "fullName": "John Doe",
   "email": "john.doe@apexlegal.com",
   "password": "Password123!",
   "role": "lawyer"
-}
-```
+}```
 ---
 
 2. Login User
