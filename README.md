@@ -1,4 +1,4 @@
-Apex Legal Backend API
+# Apex Legal Backend API
 
 Backend API for the Apex Legal Case Management System.
 
@@ -21,60 +21,83 @@ Apex Legal is a legal practice management platform designed to help law firms ma
 
 ---
 
-## Base URL (Online)
-```
+# Base URL (Online)
+
+```bash
 https://apex-legal-1.onrender.com/api
 ```
-## Base URL (Local)
-```
+
+# Base URL (Local)
+
+```bash
 http://localhost:8080/api
 ```
+
 ---
 
-## Quick Start Testing
+# Quick Start Testing
 
-1. Register User
+## 1. Register User
 
-POST ```/api/users/register```
-Sample Request
-```{
+**POST**
+
+```http
+/api/users/register
+```
+
+### Sample Request
+
+```json
+{
   "fullName": "John Doe",
   "email": "john.doe@apexlegal.com",
   "password": "Password123!",
   "role": "lawyer"
-}```
+}
+```
+
 ---
 
-2. Login User
+## 2. Login User
 
-POST ```/api/users/login
+**POST**
+
+```http
+/api/users/login
 ```
-Sample Request
-```
+
+### Sample Request
+
+```json
 {
   "email": "john.doe@apexlegal.com",
   "password": "Password123!"
 }
 ```
+
 Copy the returned JWT and use:
 
+```http
 Authorization: Bearer YOUR_TOKEN
+```
 
 for all protected routes.
 
 ---
 
-## Authentication
+# Authentication
 
-Protected routes require JWT Bearer Token.
+Protected routes require a JWT Bearer Token.
 
-Example:
+### Example
 
+```http
 Authorization: Bearer YOUR_TOKEN
+```
 
 ---
 
-## User Roles
+# User Roles
 
 Supported RBAC roles:
 
@@ -86,7 +109,7 @@ Supported RBAC roles:
 
 ---
 
-## Features
+# Features
 
 * User Authentication & Authorization
 * JWT Authentication
@@ -114,14 +137,19 @@ Supported RBAC roles:
 
 ---
 
-## USER ROUTES
+# USER ROUTES
 
-Register User
+## Register User
 
-POST ```/api/users/register
+**POST**
+
+```http
+/api/users/register
 ```
-Sample Request
-```
+
+### Sample Request
+
+```json
 {
   "fullName": "John Doe",
   "email": "john.doe@apexlegal.com",
@@ -129,90 +157,137 @@ Sample Request
   "role": "lawyer"
 }
 ```
+
 ---
 
-Login User
+## Login User
 
-POST ```/api/users/login
+**POST**
+
+```http
+/api/users/login
 ```
-Sample Request
-```
+
+### Sample Request
+
+```json
 {
   "email": "john.doe@apexlegal.com",
   "password": "Password123!"
 }
 ```
+
 ---
 
+## Forgot Password
 
-Forgot Password
+**POST**
 
-POST ```/api/users/forgot-password
+```http
+/api/users/forgot-password
 ```
-Sample Request
-```
+
+### Sample Request
+
+```json
 {
   "email": "john.doe@apexlegal.com"
 }
 ```
+
 ---
 
-Reset Password
+## Reset Password
 
-POST ```/api/users/reset-password/:token
+**POST**
+
+```http
+/api/users/reset-password/:token
 ```
-Sample Request
-```
+
+### Sample Request
+
+```json
 {
   "password": "NewPassword123!"
 }
 ```
+
 ---
 
-Get All Users
+## Get All Users
 
-GET ```/api/users
+**GET**
+
+```http
+/api/users
 ```
+
 ---
 
-Get Single User
+## Get Single User
 
-GET ```/api/users/:id
+**GET**
+
+```http
+/ api/users/:id
 ```
+
 ---
 
-Update User
+## Update User
 
-PATCH ```/api/users/:id
+**PATCH**
+
+```http
+/api/users/:id
 ```
+
 ---
 
-Delete User
+## Delete User
 
-DELETE ```/api/users/:id
+**DELETE**
+
+```http
+/api/users/:id
 ```
+
 ---
 
-Deactivate User
+## Deactivate User
 
-PATCH ```/api/users/:id/deactivate
+**PATCH**
+
+```http
+/api/users/:id/deactivate
 ```
+
 ---
 
-Reactivate User
+## Reactivate User
 
-PATCH ```/api/users/:id/reactivate
+**PATCH**
+
+```http
+/api/users/:id/reactivate
 ```
+
 ---
 
-CLIENT ROUTES
+# CLIENT ROUTES
 
-Create Client
+## Create Client
 
-POST ```/api/clients/create
+**POST**
+
+```http
+/api/clients/create
 ```
-Sample Request
-```
+
+### Sample Request
+
+```json
 {
   "fullName": "Jane Smith",
   "email": "jane.smith@example.com",
@@ -220,46 +295,72 @@ Sample Request
   "address": "Lagos, Nigeria"
 }
 ```
+
 ---
 
-Get All Clients
+## Get All Clients
 
-GET ```/api/clients
+**GET**
+
+```http
+/api/clients
 ```
+
 ---
 
-Get Single Client
+## Get Single Client
 
-GET ```/api/clients/:id
+**GET**
+
+```http
+/api/clients/:id
 ```
+
 ---
 
-Update Client
+## Update Client
 
-PATCH ```/api/clients/:id
+**PATCH**
+
+```http
+/api/clients/:id
 ```
+
 ---
 
-Delete Client
+## Delete Client
 
-DELETE ```/api/clients/:id
+**DELETE**
+
+```http
+/api/clients/:id
 ```
+
 ---
 
-Search Clients
+## Search Clients
 
-GET ```/api/clients/search?q=john
+**GET**
+
+```http
+/api/clients/search?q=john
 ```
+
 ---
 
-CASE ROUTES
+# CASE ROUTES
 
-Create Case
+## Create Case
 
-POST ```/api/cases/create
+**POST**
+
+```http
+/api/cases/create
 ```
-Sample Request
-```
+
+### Sample Request
+
+```json
 {
   "title": "Property Ownership Dispute",
   "description": "Land ownership dispute between two parties.",
@@ -268,162 +369,247 @@ Sample Request
   "status": "Open"
 }
 ```
+
 ---
 
-Get All Cases
+## Get All Cases
 
-GET ```/api/cases
+**GET**
+
+```http
+/api/cases
 ```
+
 ---
 
-Get Single Case
+## Get Single Case
 
-GET ```/api/cases/:id
+**GET**
+
+```http
+/api/cases/:id
 ```
+
 ---
 
-Update Case
+## Update Case
 
-PATCH ```/api/cases/:id
+**PATCH**
+
+```http
+/api/cases/:id
 ```
+
 ---
 
-Delete Case
+## Delete Case
 
-DELETE ```/api/cases/:id
+**DELETE**
+
+```http
+/api/cases/:id
 ```
+
 ---
 
-Update Case Status
+## Update Case Status
 
-PATCH ```/api/cases/:id/status
+**PATCH**
+
+```http
+/api/cases/:id/status
 ```
+
 ---
 
-Add Case Note
+## Add Case Note
 
-POST ```/api/cases/:id/notes
+**POST**
+
+```http
+/api/cases/:id/notes
 ```
-Sample Request
-```
+
+### Sample Request
+
+```json
 {
   "note": "Client submitted additional evidence for review."
 }
 ```
----
-
-Search Cases
-
-GET /api/cases/search?q=land
 
 ---
 
-Get Cases By Status
+## Search Cases
 
-GET /api/cases/status/open
+**GET**
 
----
-
-Get Cases By Client
-
-GET /api/cases/client/:clientId
+```http
+/api/cases/search?q=land
+```
 
 ---
 
-Get Lawyer Cases
+## Get Cases By Status
 
-GET /api/cases/lawyer/:lawyerId
+**GET**
+
+```http
+/api/cases/status/open
+```
 
 ---
 
-HEARING ROUTES
+## Get Cases By Client
 
-Create Hearing
+**GET**
 
-POST /api/hearings/create
+```http
+/api/cases/client/:clientId
+```
 
-Sample Request
+---
 
+## Get Lawyer Cases
+
+**GET**
+
+```http
+/api/cases/lawyer/:lawyerId
+```
+
+---
+
+# HEARING ROUTES
+
+## Create Hearing
+
+**POST**
+
+```http
+/api/hearings/create
+```
+
+### Sample Request
+
+```json
 {
   "caseId": "CASE_ID",
   "hearingDate": "2026-08-15",
   "location": "Lagos High Court",
   "notes": "Initial hearing session"
 }
+```
 
 ---
 
-Get All Hearings
+## Get All Hearings
 
-GET /api/hearings
+**GET**
 
----
-
-Get Single Hearing
-
-GET /api/hearings/:id
+```http
+/api/hearings
+```
 
 ---
 
-Update Hearing
+## Get Single Hearing
 
-PATCH /api/hearings/:id
+**GET**
 
----
-
-Delete Hearing
-
-DELETE /api/hearings/:id
+```http
+/api/hearings/:id
+```
 
 ---
 
-DOCUMENT ROUTES
+## Update Hearing
 
-Upload Document
+**PATCH**
 
-POST /api/documents/upload
+```http
+/api/hearings/:id
+```
 
-Content Type
+---
 
+## Delete Hearing
+
+**DELETE**
+
+```http
+/api/hearings/:id
+```
+
+---
+
+# DOCUMENT ROUTES
+
+## Upload Document
+
+**POST**
+
+```http
+/api/documents/upload
+```
+
+### Content Type
+
+```http
 multipart/form-data
+```
 
-Form Fields
+### Form Fields
 
+```text
 evidence = contract.pdf
 caseId = CASE_ID
 category = Corporate Law
 tag = Contract Evidence
+```
 
-Supported Categories
+### Supported Categories
 
-Litigation
-Corporate Law
-Property Law
-Criminal Law
-Family Law
-Arbitration
-Internal Template
-Compliance
-
----
-
-Get Documents By Case
-
-GET /api/documents/case/:caseId
+* Litigation
+* Corporate Law
+* Property Law
+* Criminal Law
+* Family Law
+* Arbitration
+* Internal Template
+* Compliance
 
 ---
 
-Get All Documents
+## Get Documents By Case
 
-GET /api/documents/all-raw
+**GET**
+
+```http
+/api/documents/case/:caseId
+```
 
 ---
 
-DASHBOARD ROUTES
+## Get All Documents
 
-Dashboard Statistics
+**GET**
 
-GET /api/dashboard/stats
+```http
+/api/documents/all-raw
+```
+
+---
+
+# DASHBOARD ROUTES
+
+## Dashboard Statistics
+
+**GET**
+
+```http
+/api/dashboard/stats
+```
 
 Provides:
 
@@ -437,27 +623,39 @@ Provides:
 
 ---
 
-AUDIT ROUTES
+# AUDIT ROUTES
 
-Get Audit Logs
+## Get Audit Logs
 
-GET /api/audits
+**GET**
 
----
-
-Get Login Activity
-
-GET /api/audits/login-activity
+```http
+/api/audits
+```
 
 ---
 
-Get Resource History
+## Get Login Activity
 
-GET /api/audits/resource/:resourceId
+**GET**
+
+```http
+/api/audits/login-activity
+```
 
 ---
 
-Audit Features
+## Get Resource History
+
+**GET**
+
+```http
+/api/audits/resource/:resourceId
+```
+
+---
+
+# Audit Features
 
 System automatically logs:
 
@@ -473,7 +671,7 @@ System automatically logs:
 
 ---
 
-Automated Reminder System
+# Automated Reminder System
 
 The system automatically sends hearing reminders:
 
@@ -486,7 +684,7 @@ Duplicate reminders are automatically prevented.
 
 ---
 
-Document Management
+# Document Management
 
 Documents are:
 
@@ -497,16 +695,16 @@ Documents are:
 * Available for Preview (supported formats)
 * Available for Download
 
-Supported preview formats include:
+### Supported Preview Formats
 
 * Images (JPG, PNG, WEBP)
 * PDFs
 
-Non-previewable files (e.g. DOCX, XLSX, ACCDB) are securely downloaded.
+Non-previewable files (e.g., DOCX, XLSX, ACCDB) are securely downloaded.
 
 ---
 
-Security Features
+# Security Features
 
 * JWT Authentication
 * Role-Based Access Control (RBAC)
@@ -518,10 +716,11 @@ Security Features
 
 ---
 
-Environment Variables
+# Environment Variables
 
-Create a ".env" file:
-```
+Create a `.env` file:
+
+```env
 PORT=8080
 
 MONGO_URI=your_mongodb_connection
@@ -538,37 +737,42 @@ CLOUDINARY_API_KEY=your_api_key
 
 CLOUDINARY_API_SECRET=your_api_secret
 ```
+
 ---
 
-Run Locally
+# Run Locally
 
-Install dependencies:
+## Install Dependencies
 
+```bash
 npm install
+```
 
-Run development server:
+## Run Development Server
 
+```bash
 npm run dev
+```
 
 ---
 
-Deployment
+# Deployment
 
-Backend Hosting:
+## Backend Hosting
 
-Render
+* Render
 
-Database:
+## Database
 
-MongoDB Atlas
+* MongoDB Atlas
 
-File Storage:
+## File Storage
 
-Cloudinary
+* Cloudinary
 
 ---
 
-## Future Improvements
+# Future Improvements
 
 * Swagger API Documentation
 * Two-Factor Authentication
@@ -577,10 +781,12 @@ Cloudinary
 
 ---
 
-## Authors
+# Authors
 
 * Eroh Oghenemaro Divine
 * Abdulrahmon Quadri Abiodun
 * Olesegun Adeyemi
 
-Apex Legal Backend System
+---
+
+# Apex Legal Backend System
