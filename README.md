@@ -1,25 +1,23 @@
 Apex Legal Backend API
 
-Backend API powering the Apex Legal Case Management System. The platform is designed to help legal firms manage users, clients, cases, hearings, documents, audit trails, and automated hearing reminders.
-
----
+Backend API for the Apex Legal Case Management System.
 
 Tech Stack
 
-- Node.js
-- Express.js
-- MongoDB Atlas
-- Mongoose
-- JWT Authentication
-- bcryptjs
-- Multer
-- Cloudinary
-- Node Cron
-- Nodemailer
+* Node.js
+* Express.js
+* MongoDB Atlas
+* Mongoose
+* JWT Authentication
+* bcryptjs
+* Multer
+* Cloudinary
+* Nodemailer
+* Node Cron
 
 ---
 
-Base URL (Production)
+Base URL (Online)
 
 https://apex-legal-1.onrender.com/api
 
@@ -31,7 +29,7 @@ http://localhost:8080/api
 
 Authentication
 
-Protected routes require a JWT Bearer Token.
+Protected routes require JWT Bearer Token.
 
 Example:
 
@@ -39,106 +37,43 @@ Authorization: Bearer YOUR_TOKEN
 
 ---
 
-User Roles (RBAC)
+User Roles
 
-Supported roles:
+Supported RBAC roles:
 
-- admin
-- lawyer
-- Secretary
-- Practice Manager
-- Paralegal
-
-Role-Based Access Control (RBAC) is enforced throughout the system to restrict access to sensitive operations.
+* admin
+* lawyer
+* Secretary
+* Practice Manager
+* Paralegal
 
 ---
 
-Core Features
+Features
 
-Authentication & Security
-
-- User Registration
-- User Login
-- User Logout
-- JWT Authentication
-- Password Hashing (bcrypt)
-- Forgot Password
-- Password Reset
-- User Deactivation
-- User Reactivation
-- Role-Based Access Control
-
-Client Management
-
-- Create Clients
-- Update Clients
-- Delete Clients
-- Search Clients
-- Client History Tracking
-
-Case Management
-
-- Create Cases
-- Update Cases
-- Delete Cases
-- Case Status Updates
-- Case Notes
-- Search & Filtering
-- Lawyer Assignment
-
-Hearing Management
-
-- Hearing Scheduling
-- Hearing Status Tracking
-- Hearing Updates
-- Hearing Reminders
-
-Document Management
-
-- Cloudinary File Storage
-- File Upload
-- File Download
-- File Preview (supported formats)
-- SHA-256 Integrity Verification
-- Case Linking
-
-Audit Logging
-
-Automatic tracking of:
-
-- Login Activity
-- Failed Login Attempts
-- User Updates
-- Client Operations
-- Case Operations
-- Hearing Operations
-- Document Uploads
-- Resource Access
-
-Dashboard Analytics
-
-- Total Users
-- Total Clients
-- Total Cases
-- Total Hearings
-- Open Cases
-- Closed Cases
-- Upcoming Hearings
-
-Automated Scheduler
-
-Automated hearing reminders:
-
-- 30 Days Before Hearing
-- 7 Days Before Hearing
-- 3 Days Before Hearing
-- 1 Day Before Hearing
-
-Duplicate reminders are prevented through reminder tracking flags.
+* User Authentication & Authorization
+* JWT Authentication
+* Forgot Password
+* Password Reset
+* User Deactivation & Reactivation
+* Role-Based Access Control (RBAC)
+* Client Management
+* Hearing Management
+* Automated Hearing Reminders
+* Email Notifications
+* Schedule Management
+* Case Management
+* Case Notes
+* Document Upload System
+* Cloudinary Storage
+* Dashboard Analytics
+* Audit Logging
+* Case Search & Filtering
+* SHA-256 File Verification
 
 ---
 
-API ROUTES
+API Routes
 
 ---
 
@@ -148,7 +83,7 @@ Register User
 
 POST /api/users/register
 
-Sample Request
+Sample Body
 
 {
   "fullName": "John Doe",
@@ -163,7 +98,7 @@ Login User
 
 POST /api/users/login
 
-Sample Request
+Sample Body
 
 {
   "email": "john.doe@apexlegal.com",
@@ -182,7 +117,7 @@ Forgot Password
 
 POST /api/users/forgot-password
 
-Sample Request
+Sample Body
 
 {
   "email": "john.doe@apexlegal.com"
@@ -194,7 +129,7 @@ Reset Password
 
 POST /api/users/reset-password/:token
 
-Sample Request
+Sample Body
 
 {
   "password": "NewPassword123!"
@@ -234,11 +169,11 @@ Create Client
 
 POST /api/clients/create
 
-Sample Request
+Sample Body
 
 {
   "fullName": "Jane Smith",
-  "email": "jane.smith@example.com",
+  "email": "jane@example.com",
   "phone": "+2348012345678",
   "address": "Lagos, Nigeria"
 }
@@ -271,7 +206,7 @@ Create Case
 
 POST /api/cases/create
 
-Sample Request
+Sample Body
 
 {
   "title": "Property Ownership Dispute",
@@ -305,10 +240,10 @@ Add Case Note
 
 POST /api/cases/:id/notes
 
-Sample Request
+Sample Body
 
 {
-  "note": "Client submitted additional evidence for review."
+  "note": "Client submitted additional evidence."
 }
 
 Search Cases
@@ -329,25 +264,41 @@ GET /api/cases/lawyer/:lawyerId
 
 ---
 
+HEARING ROUTES
+
+Create Hearing
+
+POST /api/hearings/create
+
+Get All Hearings
+
+GET /api/hearings
+
+Get Single Hearing
+
+GET /api/hearings/:id
+
+Update Hearing
+
+PATCH /api/hearings/:id
+
+Delete Hearing
+
+DELETE /api/hearings/:id
+
+---
+
 DOCUMENT ROUTES
 
 Upload Document
 
 POST /api/documents/upload
 
-Content Type
+Content-Type
 
 multipart/form-data
 
-Fields
-
-Field| Type
-evidence| File
-caseId| String
-category| String
-tag| String
-
-Example
+Form Fields
 
 evidence = contract.pdf
 caseId = CASE_ID
@@ -361,6 +312,24 @@ GET /api/documents/case/:caseId
 Get All Documents
 
 GET /api/documents/all-raw
+
+---
+
+DASHBOARD ROUTES
+
+Dashboard Statistics
+
+GET /api/dashboard/stats
+
+Returns:
+
+* Total Users
+* Total Clients
+* Total Cases
+* Total Hearings
+* Open Cases
+* Closed Cases
+* Upcoming Hearings
 
 ---
 
@@ -380,21 +349,45 @@ GET /api/audits/resource/:resourceId
 
 ---
 
-Dashboard Routes
+Audit Features
 
-Dashboard Statistics
+System automatically logs:
 
-GET /api/dashboard/stats
+* User Login Activity
+* Failed Login Attempts
+* User Updates
+* Client Creation & Updates
+* Case Creation & Updates
+* Hearing Operations
+* Case Notes
+* Document Upload Activity
+* Resource Access History
 
-Returns:
+---
 
-- Total Users
-- Total Clients
-- Total Cases
-- Total Hearings
-- Open Cases
-- Closed Cases
-- Upcoming Hearings
+Automated Reminder System
+
+The system automatically sends hearing reminders:
+
+* 30 Days Before Hearing
+* 7 Days Before Hearing
+* 3 Days Before Hearing
+* 1 Day Before Hearing
+
+Duplicate reminders are automatically prevented.
+
+---
+
+Document Management
+
+Documents are:
+
+* Uploaded to Cloudinary
+* Linked to Cases
+* Protected by JWT Authentication
+* Integrity Verified using SHA-256 Hashing
+* Available for Preview (supported formats)
+* Available for Download
 
 ---
 
@@ -406,9 +399,9 @@ PORT=8080
 
 MONGO_URI=your_mongodb_connection
 
-JWT_SECRET=your_jwt_secret
+JWT_SECRET=your_secret_key
 
-EMAIL_USER=your_email_address
+EMAIL_USER=your_email
 
 EMAIL_PASS=your_email_password
 
@@ -442,38 +435,25 @@ Database:
 
 MongoDB Atlas
 
-Document Storage:
+File Storage:
 
 Cloudinary
 
 ---
 
-Security Features
-
-- JWT Authentication
-- Role-Based Access Control
-- Password Hashing
-- Password Reset Tokens
-- Account Deactivation
-- Audit Logging
-- File Integrity Verification (SHA-256)
-
----
-
 Future Improvements
 
-- Swagger API Documentation
-- Rate Limiting
-- Two-Factor Authentication
-- Advanced Analytics Dashboard
-- Case Reporting Exports
+* Swagger API Documentation
+* Two-Factor Authentication
+* Advanced Analytics Dashboard
+* Rate Limiting & Security Hardening
 
 ---
 
 Authors
 
-- Eroh Oghenemaro Divine
-- Abdulrahmon Quadri Abiodun
-- Olesegun Adeyemi
+* Eroh Oghenemaro Divine
+* Abdulrahmon Quadri Abiodun
+* Olesegun Adeyemi
 
 Apex Legal Backend System
