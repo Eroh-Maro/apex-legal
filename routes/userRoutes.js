@@ -13,6 +13,7 @@ import {
   deactivateUser,
   reactivateUser,
   logoutUser,
+  getCurrentUser,
 } from "../controllers/userController.js";
 
 import {
@@ -97,6 +98,8 @@ router.delete(
 // ==========================
 // AUTHENTICATED USER ROUTES
 // ==========================
+
+router.get("/me", protect, getCurrentUser);
 
 router.get(
   "/:id",

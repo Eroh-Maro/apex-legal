@@ -291,6 +291,15 @@ export const getSingleUser = async (req, res) => {
   }
 };
 
+export const getCurrentUser = async (req, res) => {
+  const user = await User.findById(req.user.id);
+
+  res.status(200).json({
+    success: true,
+    user,
+  });
+};
+
 // UPDATE USER
 export const updateUser = async (req, res) => {
   try {

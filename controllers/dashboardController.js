@@ -12,13 +12,13 @@ export const getDashboardStats = async (req, res) => {
       status: "pending",
     });
 
-    const activeCases = await Case.countDocuments({
-      status: "active",
-    });
+const activeCases = await Case.countDocuments({
+  status: "open",
+});
 
-    const completedCases = await Case.countDocuments({
-      status: "completed",
-    });
+const completedCases = await Case.countDocuments({
+  status: "closed",
+});
 
     const totalClients = await Client.countDocuments();
 
