@@ -18,7 +18,22 @@ export const registerUser = async (req, res) => {
       password,
       role,
       firmSize,
+      phone,
+      lawFirm,
     } = req.body;
+
+    // VALIDATION
+    if (
+      !fullName ||
+      !email ||
+      !password ||
+      !role ||
+      !lawFirm
+    ) {
+      return res.status(400).json({
+        message: "Please provide all required fields",
+      });
+    }
 
     // CHECK IF USER EXISTS
     const existingUser = await User.findOne({ email });
@@ -37,7 +52,9 @@ export const registerUser = async (req, res) => {
 
     if (req.file) {
       const result = await cloudinary.uploader.upload(
-        `data:${req.file.mimetype};base64,${req.file.buffer.toString("base64")}`,
+        `data:${req.file.mimetype};base64,${req.file.buffer.toString(
+          "base64"
+        )}`,
         {
           folder: "apex-legal/profile-pictures",
         }
@@ -53,6 +70,8 @@ export const registerUser = async (req, res) => {
       password: hashedPassword,
       role,
       firmSize,
+      phone,
+      lawFirm,
       profilePicture,
     });
 
@@ -70,6 +89,8 @@ export const registerUser = async (req, res) => {
 
         <p><strong>Role:</strong> ${user.role}</p>
         <p><strong>Firm Size:</strong> ${user.firmSize || "Not Provided"}</p>
+        <p><strong>Law Firm:</strong> ${user.lawFirm || "Not Provided"}</p>
+        <p><strong>Phone Number:</strong> ${user.phone || "Not Provided"}</p>
 
         <p>You can now log in and begin using the Apex Legal platform.</p>
 
@@ -99,16 +120,26 @@ export const registerUser = async (req, res) => {
       req.ip,
       {
         fullName: user.fullName,
+        role: user.role,
         firmSize: user.firmSize,
+        lawFirm: user.lawFirm,
+        phone: user.phone,
       },
       "success"
     );
 
+    // REMOVE PASSWORD FROM RESPONSE
+    const userResponse = user.toObject();
+    delete userResponse.password;
+
     res.status(201).json({
       message: "User registered successfully",
-      user,
+      user: userResponse,
     });
+
   } catch (error) {
+    console.error(error);
+
     res.status(500).json({
       message: error.message,
     });
