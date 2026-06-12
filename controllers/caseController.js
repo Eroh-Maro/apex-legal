@@ -6,7 +6,6 @@ import Client from "../models/clientModel.js";
 import User from "../models/userModel.js";
 import { sendEmail } from "../utils/sendEmail.js";
 
-
 // CREATE CASE
 export const createCase = async (req, res) => {
   try {
@@ -41,6 +40,13 @@ export const createCase = async (req, res) => {
       });
     }
 
+    if (lawyer.role !== "lawyer") {
+      return res.status(400).json({
+        success: false,
+        message: "Selected user is not a lawyer",
+      });
+    }
+
     // CHECK DUPLICATE CASE NUMBER
     const existingCase = await Case.findOne({ caseNumber });
 
@@ -64,10 +70,10 @@ export const createCase = async (req, res) => {
     });
 
     // EMAIL NOTIFICATION
-await sendEmail(
-  lawyer.email,
-  "New Case Assignment",
-  `
+    await sendEmail(
+      lawyer.email,
+      "New Case Assignment",
+      `
   <div style="font-family: Arial, sans-serif; max-width: 600px; line-height: 1.6;">
     <h2>New Case Assigned</h2>
 
@@ -82,7 +88,7 @@ await sendEmail(
     </p>
   </div>
   `
-);
+    );
     // AUDIT LOG
     await logAction(
       req.user._id,
@@ -134,7 +140,6 @@ export const getCases = async (req, res) => {
   }
 };
 
-
 // GET SINGLE CASE
 export const getCaseById = async (req, res) => {
   try {
@@ -162,7 +167,6 @@ export const getCaseById = async (req, res) => {
   }
 };
 
-
 // PATCH CASE
 export const updateCase = async (req, res) => {
   try {
@@ -175,14 +179,10 @@ export const updateCase = async (req, res) => {
       });
     }
 
-    const updatedCase = await Case.findByIdAndUpdate(
-      req.params.id,
-      req.body,
-      {
-        new: true,
-        runValidators: true,
-      }
-    );
+    const updatedCase = await Case.findByIdAndUpdate(req.params.id, req.body, {
+      new: true,
+      runValidators: true,
+    });
 
     // AUDIT LOG
     await logAction(
@@ -211,7 +211,6 @@ export const updateCase = async (req, res) => {
     });
   }
 };
-
 
 // DELETE CASE
 export const deleteCase = async (req, res) => {
@@ -300,7 +299,6 @@ export const updateCaseStatus = async (req, res) => {
     });
   }
 };
-
 
 // ADD NOTE TO CASE
 export const addCaseNote = async (req, res) => {
@@ -439,6 +437,83 @@ export const getLawyerCases = async (req, res) => {
       success: true,
       count: cases.length,
       cases,
+    });
+  } catch (error) {
+    res.status(500).json({
+      success: false,
+      message: error.message,
+    });
+  }
+};
+
+export const assignLawyer = async (req, res) => {
+  try {
+    const { lawyerId } = req.body;
+
+    const legalCase = await Case.findById(req.params.id);
+
+    if (!legalCase) {
+      return res.status(404).json({
+        success: false,
+        message: "Case not found",
+      });
+    }
+
+    const lawyer = await User.findById(lawyerId);
+
+    if (!lawyer) {
+      return res.status(404).json({
+        success: false,
+        message: "Lawyer not found",
+      });
+    }
+
+    if (lawyer.role !== "lawyer") {
+      return res.status(400).json({
+        success: false,
+        message: "Selected user is not a lawyer",
+      });
+    }
+
+    legalCase.assignedLawyer = lawyerId;
+
+    await legalCase.save();
+
+    await sendEmail(
+      lawyer.email,
+      "Case Assignment",
+      `
+      <h2>New Case Assignment</h2>
+
+      <p>Hello ${lawyer.fullName},</p>
+
+      <p>You have been assigned to a case.</p>
+
+      <p><strong>Title:</strong> ${legalCase.title}</p>
+      <p><strong>Case Number:</strong> ${legalCase.caseNumber}</p>
+
+      <p>Please log in to Apex Legal for more details.</p>
+      `
+    );
+
+    await logAction(
+      req.user._id,
+      req.user.email,
+      req.user.role,
+      "ASSIGN_LAWYER",
+      "Case",
+      legalCase._id,
+      req.ip,
+      {
+        lawyerAssigned: lawyer.email,
+      },
+      "success"
+    );
+
+    res.status(200).json({
+      success: true,
+      message: "Lawyer assigned successfully",
+      legalCase,
     });
   } catch (error) {
     res.status(500).json({

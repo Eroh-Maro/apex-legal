@@ -24,13 +24,44 @@ export const registerUser = async (req, res) => {
     // HASH PASSWORD
     const hashedPassword = await bcrypt.hash(password, 10);
 
-    // CREATE USER
-    const user = await User.create({
-      fullName,
-      email,
-      password: hashedPassword,
-      role,
-    });
+// CREATE USER
+const user = await User.create({
+  fullName,
+  email,
+  password: hashedPassword,
+  role,
+});
+
+// SEND WELCOME EMAIL
+try {
+  await sendEmail(
+    user.email,
+    "Welcome to Apex Legal",
+    `
+    <h2>Welcome to Apex Legal</h2>
+
+    <p>Hello ${user.fullName},</p>
+
+    <p>Your account has been successfully created.</p>
+
+    <p><strong>Role:</strong> ${user.role}</p>
+
+    <p>You can now log in and begin using the Apex Legal platform.</p>
+
+    <p>Please keep your credentials secure and contact an administrator if you experience any access issues.</p>
+
+    <br>
+
+    <p>Regards,</p>
+    <p><strong>Apex Legal Team</strong></p>
+    `
+  );
+} catch (emailError) {
+  console.error(
+    "Welcome email failed:",
+    emailError.message
+  );
+}
 
     // AUDIT LOG
     await logAction(

@@ -14,6 +14,7 @@ import {
   getCasesByClient,
   getLawyerCases,
   getCasesByStatus,
+  assignLawyer,
 } from "../controllers/caseController.js";
 
 import {
@@ -86,6 +87,12 @@ router.delete(
   deleteCase
 );
 
+router.patch(
+  "/:id/assign-lawyer",
+  protect,
+  authorize("admin"),
+  assignLawyer
+);
 
 // UPDATE CASE STATUS
 router.patch(
