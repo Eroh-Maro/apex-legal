@@ -14,7 +14,7 @@ const auditSchema = new mongoose.Schema(
     userRole: {
       type: String,
       required: true,
-      enum: ["lawyer", "admin", "Secretary", "Practice Manager", "Paralegal"],
+      enum: ["lawyer", "admin", "secretary", "practice manager", "paralegal"],
     },
 
     action: {

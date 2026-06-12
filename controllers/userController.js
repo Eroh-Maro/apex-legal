@@ -48,20 +48,18 @@ export const registerUser = async (req, res) => {
     const hashedPassword = await bcrypt.hash(password, 10);
 
     // UPLOAD PROFILE PICTURE IF PROVIDED
-    let profilePicture = "";
+let profilePicture = "";
 
-    if (req.file) {
-      const result = await cloudinary.uploader.upload(
-        `data:${req.file.mimetype};base64,${req.file.buffer.toString(
-          "base64"
-        )}`,
-        {
-          folder: "apex-legal/profile-pictures",
-        }
-      );
-
-      profilePicture = result.secure_url;
+if (req.body.profilePicture) {
+  const result = await cloudinary.uploader.upload(
+    req.body.profilePicture,
+    {
+      folder: "apex-legal/profile-pictures",
     }
+  );
+
+  profilePicture = result.secure_url;
+}
 
     // CREATE USER
     const user = await User.create({
