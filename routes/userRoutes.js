@@ -1,4 +1,5 @@
 import express from "express";
+import multer from "multer";
 
 import {
   registerUser,
@@ -21,20 +22,50 @@ import {
 
 const router = express.Router();
 
-// PUBLIC ROUTES
-router.post("/register", registerUser);
-router.post("/login", loginUser);
-router.post("/forgot-password", forgotPassword);
-router.post("/reset-password/:token", resetPassword);
+// MULTER CONFIGURATION
+const upload = multer({
+  storage: multer.memoryStorage(),
+  limits: {
+    fileSize: 5 * 1024 * 1024, // 5MB profile picture limit
+  },
+});
 
+// ==========================
+// PUBLIC ROUTES
+// ==========================
+
+router.post(
+  "/register",
+  upload.single("profilePicture"),
+  registerUser
+);
+
+router.post("/login", loginUser);
+
+router.post(
+  "/forgot-password",
+  forgotPassword
+);
+
+router.post(
+  "/reset-password/:token",
+  resetPassword
+);
+
+// ==========================
 // PROTECTED ROUTES
+// ==========================
+
 router.post(
   "/logout",
   protect,
   logoutUser
 );
 
-// ADMIN ONLY
+// ==========================
+// ADMIN ONLY ROUTES
+// ==========================
+
 router.get(
   "/",
   protect,
@@ -42,7 +73,6 @@ router.get(
   getUsers
 );
 
-// ADMIN ONLY
 router.patch(
   "/:id/deactivate",
   protect,
@@ -57,26 +87,27 @@ router.patch(
   reactivateUser
 );
 
-// ANY LOGGED-IN USER CAN VIEW A USER
+router.delete(
+  "/:id",
+  protect,
+  authorize("admin"),
+  deleteUser
+);
+
+// ==========================
+// AUTHENTICATED USER ROUTES
+// ==========================
+
 router.get(
   "/:id",
   protect,
   getSingleUser
 );
 
-// USER CAN UPDATE SELF, ADMIN CAN UPDATE ANYONE
 router.patch(
   "/:id",
   protect,
   updateUser
-);
-
-// ADMIN ONLY
-router.delete(
-  "/:id",
-  protect,
-  authorize("admin"),
-  deleteUser
 );
 
 export default router;

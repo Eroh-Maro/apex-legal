@@ -6,6 +6,8 @@ import crypto from "crypto";
 import { sendEmail } from "../utils/sendEmail.js";
 import bcrypt from "bcryptjs";
 import jwt from "jsonwebtoken";
+import cloudinary from "../config/cloudinary.js";
+
 
 // REGISTER USER
 export const registerUser = async (req, res) => {
@@ -24,44 +26,59 @@ export const registerUser = async (req, res) => {
     // HASH PASSWORD
     const hashedPassword = await bcrypt.hash(password, 10);
 
-// CREATE USER
-const user = await User.create({
-  fullName,
-  email,
-  password: hashedPassword,
-  role,
-});
+    // UPLOAD PROFILE PICTURE IF PROVIDED
+    let profilePicture = "";
 
-// SEND WELCOME EMAIL
-try {
-  await sendEmail(
-    user.email,
-    "Welcome to Apex Legal",
-    `
-    <h2>Welcome to Apex Legal</h2>
+    if (req.file) {
+      const result = await cloudinary.uploader.upload(
+        `data:${req.file.mimetype};base64,${req.file.buffer.toString("base64")}`,
+        {
+          folder: "apex-legal/profile-pictures",
+        }
+      );
 
-    <p>Hello ${user.fullName},</p>
+      profilePicture = result.secure_url;
+    }
 
-    <p>Your account has been successfully created.</p>
+    // CREATE USER
+    const user = await User.create({
+      fullName,
+      email,
+      password: hashedPassword,
+      role,
+      profilePicture,
+    });
 
-    <p><strong>Role:</strong> ${user.role}</p>
+    // SEND WELCOME EMAIL
+    try {
+      await sendEmail(
+        user.email,
+        "Welcome to Apex Legal",
+        `
+        <h2>Welcome to Apex Legal</h2>
 
-    <p>You can now log in and begin using the Apex Legal platform.</p>
+        <p>Hello ${user.fullName},</p>
 
-    <p>Please keep your credentials secure and contact an administrator if you experience any access issues.</p>
+        <p>Your account has been successfully created.</p>
 
-    <br>
+        <p><strong>Role:</strong> ${user.role}</p>
 
-    <p>Regards,</p>
-    <p><strong>Apex Legal Team</strong></p>
-    `
-  );
-} catch (emailError) {
-  console.error(
-    "Welcome email failed:",
-    emailError.message
-  );
-}
+        <p>You can now log in and begin using the Apex Legal platform.</p>
+
+        <p>Please keep your credentials secure and contact an administrator if you experience any access issues.</p>
+
+        <br>
+
+        <p>Regards,</p>
+        <p><strong>Apex Legal Team</strong></p>
+        `
+      );
+    } catch (emailError) {
+      console.error(
+        "Welcome email failed:",
+        emailError.message
+      );
+    }
 
     // AUDIT LOG
     await logAction(
@@ -88,7 +105,6 @@ try {
     });
   }
 };
-
 // LOGIN USER
 export const loginUser = async (req, res) => {
   try {

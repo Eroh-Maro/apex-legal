@@ -4,6 +4,10 @@ import mongoose from "mongoose";
 
 const userSchema = new mongoose.Schema(
   {
+    profilePicture: {
+      type: String,
+      default: "",
+    },
     fullName: {
       type: String,
       required: true,
