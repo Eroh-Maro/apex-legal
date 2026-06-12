@@ -49,6 +49,11 @@ const userSchema = new mongoose.Schema(
       ],
       default: "lawyer",
     },
+    firmSize: {
+      type: String,
+      enum: ["1-5", "6-20", "21-50", "50+"],
+      default: "1-5",
+    },
 
     isActive: {
       type: Boolean,

@@ -12,7 +12,13 @@ import cloudinary from "../config/cloudinary.js";
 // REGISTER USER
 export const registerUser = async (req, res) => {
   try {
-    const { fullName, email, password, role } = req.body;
+    const {
+      fullName,
+      email,
+      password,
+      role,
+      firmSize,
+    } = req.body;
 
     // CHECK IF USER EXISTS
     const existingUser = await User.findOne({ email });
@@ -46,6 +52,7 @@ export const registerUser = async (req, res) => {
       email,
       password: hashedPassword,
       role,
+      firmSize,
       profilePicture,
     });
 
@@ -62,6 +69,7 @@ export const registerUser = async (req, res) => {
         <p>Your account has been successfully created.</p>
 
         <p><strong>Role:</strong> ${user.role}</p>
+        <p><strong>Firm Size:</strong> ${user.firmSize || "Not Provided"}</p>
 
         <p>You can now log in and begin using the Apex Legal platform.</p>
 
@@ -91,6 +99,7 @@ export const registerUser = async (req, res) => {
       req.ip,
       {
         fullName: user.fullName,
+        firmSize: user.firmSize,
       },
       "success"
     );
