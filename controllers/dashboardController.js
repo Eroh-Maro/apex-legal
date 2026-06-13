@@ -12,13 +12,13 @@ export const getDashboardStats = async (req, res) => {
       status: "pending",
     });
 
-const activeCases = await Case.countDocuments({
-  status: "open",
-});
+    const activeCases = await Case.countDocuments({
+      status: "open",
+    });
 
-const completedCases = await Case.countDocuments({
-  status: "closed",
-});
+    const completedCases = await Case.countDocuments({
+      status: "closed",
+    });
 
     const totalClients = await Client.countDocuments();
 
@@ -47,14 +47,40 @@ const completedCases = await Case.countDocuments({
     const totalHearings = await Hearing.countDocuments();
 
     const upcomingHearings = await Hearing.countDocuments({
-      status: "scheduled",
       hearingDate: {
         $gte: new Date(),
       },
     });
 
+    // RECENT CASES FOR LOGGED-IN LAWYER
+
+    const recentCases = await Case.find({
+      assignedLawyer: req.user.id,
+    })
+      .populate("client")
+      .sort({ createdAt: -1 })
+      .limit(10);
+
+    const casesWithHearings = await Promise.all(
+      recentCases.map(async (legalCase) => {
+        const nextHearing = await Hearing.findOne({
+          case: legalCase._id,
+          hearingDate: {
+            $gte: new Date(),
+          },
+        }).sort({ hearingDate: 1 });
+
+        return {
+          ...legalCase.toObject(),
+          nextHearingDate:
+            nextHearing?.hearingDate || null,
+        };
+      })
+    );
+
     res.status(200).json({
       success: true,
+
       stats: {
         totalCases,
         pendingCases,
@@ -73,7 +99,10 @@ const completedCases = await Case.countDocuments({
         totalHearings,
         upcomingHearings,
       },
+
+      cases: casesWithHearings,
     });
+
   } catch (error) {
     res.status(500).json({
       success: false,

@@ -140,21 +140,35 @@ export const getHearingById = async (req, res) => {
 };
 
 export const getMyHearings = async (req, res) => {
-  const cases = await Case.find({
-    assignedUsers: req.user.id,
-  }).select("_id");
+  try {
 
-  const caseIds = cases.map(c => c._id);
+    const cases = await Case.find({
+      assignedLawyer: req.user.id,
+    }).select("_id");
 
-  const hearings = await Hearing.find({
-    case: { $in: caseIds },
-  });
+    const caseIds = cases.map(
+      c => c._id
+    );
 
-  res.status(200).json({
-    success: true,
-    count: hearings.length,
-    hearings,
-  });
+    const hearings = await Hearing.find({
+      case: { $in: caseIds },
+    })
+      .populate("case")
+      .sort({ hearingDate: 1 });
+
+    res.status(200).json({
+      success: true,
+      count: hearings.length,
+      hearings,
+    });
+
+  } catch (error) {
+
+    res.status(500).json({
+      success: false,
+      message: error.message,
+    });
+  }
 };
 // UPDATE HEARING
 export const updateHearing = async (req, res) => {
