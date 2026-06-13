@@ -8,6 +8,7 @@ import {
   deleteHearing,
   getHearingsByCase,
   addHearingNote,
+  getMyHearings,
 } from "../controllers/hearingController.js";
 
 import {
@@ -23,6 +24,13 @@ router.post(
   protect,
   authorize("secretary", "lawyer"),
   createHearing
+);
+
+// GET CURRENT USER'S HEARINGS
+router.get(
+  "/my-hearings",
+  protect,
+  getMyHearings
 );
 
 // GET ALL HEARINGS

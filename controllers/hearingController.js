@@ -139,6 +139,23 @@ export const getHearingById = async (req, res) => {
   }
 };
 
+export const getMyHearings = async (req, res) => {
+  const cases = await Case.find({
+    assignedUsers: req.user.id,
+  }).select("_id");
+
+  const caseIds = cases.map(c => c._id);
+
+  const hearings = await Hearing.find({
+    case: { $in: caseIds },
+  });
+
+  res.status(200).json({
+    success: true,
+    count: hearings.length,
+    hearings,
+  });
+};
 // UPDATE HEARING
 export const updateHearing = async (req, res) => {
   try {
