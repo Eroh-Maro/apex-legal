@@ -15,6 +15,8 @@ export const createCase = async (req, res) => {
       client,
       assignedLawyer,
       caseType,
+      status,
+      priority,
       description,
       hearingDate,
       courtName,
@@ -30,8 +32,11 @@ export const createCase = async (req, res) => {
       });
     }
 
+    // USE ASSIGNED LAWYER OR CURRENT USER
+    const lawyerId = assignedLawyer || req.user.id;
+
     // CHECK LAWYER
-    const lawyer = await User.findById(assignedLawyer);
+    const lawyer = await User.findById(lawyerId);
 
     if (!lawyer) {
       return res.status(404).json({
@@ -48,7 +53,9 @@ export const createCase = async (req, res) => {
     }
 
     // CHECK DUPLICATE CASE NUMBER
-    const existingCase = await Case.findOne({ caseNumber });
+    const existingCase = await Case.findOne({
+      caseNumber,
+    });
 
     if (existingCase) {
       return res.status(400).json({
@@ -57,12 +64,15 @@ export const createCase = async (req, res) => {
       });
     }
 
+    // CREATE CASE
     const legalCase = await Case.create({
       title,
       caseNumber,
       client,
-      assignedLawyer,
+      assignedLawyer: lawyerId,
       caseType,
+      status,
+      priority,
       description,
       hearingDate,
       courtName,
@@ -74,21 +84,36 @@ export const createCase = async (req, res) => {
       lawyer.email,
       "New Case Assignment",
       `
-  <div style="font-family: Arial, sans-serif; max-width: 600px; line-height: 1.6;">
-    <h2>New Case Assigned</h2>
+      <div style="font-family: Arial, sans-serif; max-width: 600px; line-height: 1.6;">
+        <h2>New Case Assigned</h2>
 
-    <p>Hello ${lawyer.fullName}, you have been assigned a new case.</p>
+        <p>Hello ${lawyer.fullName},</p>
 
-    <p><strong>Title:</strong> ${legalCase.title}</p>
-    <p><strong>Case Number:</strong> ${legalCase.caseNumber}</p>
-    <p><strong>Case Type:</strong> ${legalCase.caseType}</p>
+        <p>You have been assigned a new case.</p>
 
-    <p style="font-size: 13px; color: #888; margin-top: 20px;">
-      Please log in to Apex Legal to review the case.
-    </p>
-  </div>
-  `
+        <p><strong>Title:</strong> ${legalCase.title}</p>
+        <p><strong>Case Number:</strong> ${legalCase.caseNumber}</p>
+        <p><strong>Case Type:</strong> ${legalCase.caseType}</p>
+
+        ${
+          legalCase.priority
+            ? `<p><strong>Priority:</strong> ${legalCase.priority}</p>`
+            : ""
+        }
+
+        ${
+          legalCase.status
+            ? `<p><strong>Status:</strong> ${legalCase.status}</p>`
+            : ""
+        }
+
+        <p style="font-size: 13px; color: #888; margin-top: 20px;">
+          Please log in to Apex Legal to review the case.
+        </p>
+      </div>
+      `
     );
+
     // AUDIT LOG
     await logAction(
       req.user._id,
@@ -101,6 +126,7 @@ export const createCase = async (req, res) => {
       {
         caseTitle: legalCase.title,
         caseNumber: legalCase.caseNumber,
+        assignedLawyer: lawyer.email,
       },
       "success"
     );
@@ -110,6 +136,7 @@ export const createCase = async (req, res) => {
       message: "Case created successfully",
       legalCase,
     });
+
   } catch (error) {
     res.status(500).json({
       success: false,
@@ -117,7 +144,6 @@ export const createCase = async (req, res) => {
     });
   }
 };
-
 // GET ALL CASES
 export const getCases = async (req, res) => {
   try {
